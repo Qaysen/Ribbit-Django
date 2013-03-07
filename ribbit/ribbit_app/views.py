@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
+from django.db.models import Count
 from django.contrib.auth.models import User
+from django.http import Http404
+from django.core.exceptions import ObjectDoesNotExist
 from ribbit_app.forms import AuthenticateForm, UserCreateForm, RibbitForm
 from ribbit_app.models import Ribbit
 
@@ -56,3 +59,45 @@ def signup(request):
         else:
             return index(request, user_form=user_form)
     return redirect('/')
+
+def get_latest(user):
+    try:
+        return user.ribbit_set.order_by('id').reverse()[0]
+    except IndexError:
+        return ""
+
+
+@login_required
+def users(request, username="", ribbit_form=None):
+    if username:
+        # Show a profile
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            raise Http404
+        ribbits = Ribbit.objects.filter(user=user.id)
+        if username == request.user.username or request.user.profile.follows.filter(user__username=username):
+            # Self Profile
+            return render(request, 'user.html', {'user': user, 'ribbits': ribbits, })
+        return render(request, 'user.html', {'user': user, 'ribbits': ribbits, 'follow': True, })
+    users = User.objects.all().annotate(ribbit_count=Count('ribbit'))
+    ribbits = map(get_latest, users)
+    obj = zip(users, ribbits)
+
+@login_required
+def follow(request):
+    if request.method == "POST":
+        follow_id = request.POST.get('follow', False)
+        if follow_id:
+            try:
+                user = User.objects.get(id=follow_id)
+                request.user.profile.follows.add(user.profile)
+            except ObjectDoesNotExist:
+                return redirect('/users/')
+    return redirect('/users/')
+    ribbit_form = ribbit_form or RibbitForm()
+    return render(request,
+                  'profiles.html',
+                  {'obj': obj, 'next_url': '/users/',
+                   'ribbit_form': ribbit_form,
+                   'username': request.user.username, })
