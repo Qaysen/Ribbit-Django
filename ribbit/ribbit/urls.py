@@ -11,6 +11,10 @@ urlpatterns = patterns('',
     url(r'^logout$', 'ribbit_app.views.logout_view'), # logout
     url(r'^signup$', 'ribbit_app.views.signup'), # signup
     url(r'^submit$','ribbit_app.views.submit'), #submit new ribbit
+<<<<<<< HEAD
+=======
+
+>>>>>>> 637cbbee3cff8cfb7c2f173783458249f28acf6a
     url(r'^$', 'ribbit_app.views.index'),
     url(r'^login$', 'ribbit_app.views.login_view'),
     url(r'^logout$', 'ribbit_app.views.logout_view'),
