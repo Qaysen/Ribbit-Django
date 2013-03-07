@@ -29,7 +29,6 @@ def public(request, ribbit_form=None):
     return render(request, 'public.html',{'ribbit_form':ribbit_form, 'next_url':'/ribbits', 'ribbits':ribbits, 'username':request.user.username})
 
 
-
 def index(request, auth_form=None, user_form=None):
     # User is logged in
     if request.user.is_authenticated():
@@ -106,7 +105,12 @@ def users(request, username="", ribbit_form=None):
     users = User.objects.all().annotate(ribbit_count=Count('ribbit'))
     ribbits = map(get_latest, users)
     obj = zip(users, ribbits)
-
+    ribbit_form = ribbit_form or RibbitForm()
+    return render(request,
+                  'profiles.html',
+                  {'obj': obj, 'next_url': '/users/',
+                   'ribbit_form': ribbit_form,
+                   'username': request.user.username, })
 @login_required
 def follow(request):
     if request.method == "POST":
