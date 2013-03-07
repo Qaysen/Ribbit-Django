@@ -26,7 +26,7 @@ def submit(request):
 def public(request, ribbit_form=None):
     ribbit_form = ribbit_form or RibbitForm()
     ribbits = Ribbit.objects.reverse()[:10]
-    return render(request, 'public.html',{'ribbit_form':ribbit_form, 'next_url':'/ribbits', 'ribbits':ribbits, 'username':qequest.user.username})
+    return render(request, 'public.html',{'ribbit_form':ribbit_form, 'next_url':'/ribbits', 'ribbits':ribbits, 'username':request.user.username})
 
 
 
@@ -83,8 +83,6 @@ def signup(request):
             return index(request, user_form=user_form)
     return redirect('/')
 
-<<<<<<< HEAD
-=======
 def get_latest(user):
     try:
         return user.ribbit_set.order_by('id').reverse()[0]
@@ -126,4 +124,3 @@ def follow(request):
                   {'obj': obj, 'next_url': '/users/',
                    'ribbit_form': ribbit_form,
                    'username': request.user.username, })
->>>>>>> 8991acd7d362175709df18365c47d25a648daa44
